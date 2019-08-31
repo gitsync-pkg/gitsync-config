@@ -12,11 +12,11 @@ export interface ConfigRepo {
 }
 
 export class Config {
-  protected configFile = '.git-sync.json';
+  protected configFile = '.gitsync.json';
 
   protected config: ConfigConfig = {
     repos: [],
-    cacheDir: '.git-sync',
+    cacheDir: '.gitsync',
   };
 
   constructor() {
@@ -39,7 +39,7 @@ export class Config {
   }
 
   getBaseDir() {
-    return this.config.cacheDir || '.git-sync';
+    return this.config.cacheDir || '.gitsync';
   }
 
   getRemoteByDir(dir: string) {
