@@ -57,4 +57,16 @@ export class Config {
 
     return remote;
   }
+
+  getReposFromFiles(changedFiles: string[]): ConfigRepo[] {
+    let changedRepos: Record<string, ConfigRepo> = {};
+    changedFiles.forEach((file) => {
+      this.getRepos().forEach((repo) => {
+        if (file.includes(repo.dir)) {
+          changedRepos[repo.dir] = repo;
+        }
+      });
+    });
+    return Object.values(changedRepos);
+  }
 }
