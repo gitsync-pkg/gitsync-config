@@ -1,7 +1,7 @@
 {
   "name": "@gitsync/config",
   "version": "0.1.0",
-  "description": "Read config from gitsync.json",
+  "description": "Manage .gitsync.json config",
   "keywords": [
     "gitsync",
     "config"
