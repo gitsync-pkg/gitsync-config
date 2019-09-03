@@ -2,21 +2,21 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 export interface ConfigConfig {
+  baseDir: string
   repos: ConfigRepo[]
-  cacheDir: string
 }
 
 export interface ConfigRepo {
-  dir: string
-  remote: string
+  paths: string
+  repo: string
 }
 
 export class Config {
   protected configFile = '.gitsync.json';
 
   protected config: ConfigConfig = {
+    baseDir: '.git/gitsync',
     repos: [],
-    cacheDir: '.gitsync',
   };
 
   constructor() {
@@ -30,40 +30,40 @@ export class Config {
     return this.config.repos;
   }
 
-  getRepoDir(remote: string): string {
-    if (fs.existsSync(remote)) {
-      return remote;
+  getRepoDir(repo: string): string {
+    if (fs.existsSync(repo)) {
+      return repo;
     }
 
-    return path.join(this.getBaseDir(), remote.replace(/:\/@/g, '-'));
+    return path.join(this.getBaseDir(), repo.replace(/:\/@/g, '-'));
   }
 
   getBaseDir() {
-    return this.config.cacheDir || '.gitsync';
+    return this.config.baseDir;
   }
 
-  getRemoteByDir(dir: string) {
-    let remote = null;
-    this.config.repos.forEach((repo) => {
-      if (repo.dir === dir) {
-        remote = repo.remote;
+  getRepoByPath(path: string) {
+    let repo = null;
+    this.config.repos.forEach((config) => {
+      if (config.paths === path) {
+        repo = config.repo;
         return false;
       }
     });
 
-    if (!remote) {
-      throw new Error(`Directory "${dir}" does not exist in config file.`)
+    if (!repo) {
+      throw new Error(`Path "${path}" does not exist in config file.`)
     }
 
-    return remote;
+    return repo;
   }
 
-  getReposFromFiles(changedFiles: string[]): ConfigRepo[] {
+  getReposByFiles(changedFiles: string[]): ConfigRepo[] {
     let changedRepos: Record<string, ConfigRepo> = {};
     changedFiles.forEach((file) => {
       this.getRepos().forEach((repo) => {
-        if (file.includes(repo.dir)) {
-          changedRepos[repo.dir] = repo;
+        if (file.includes(repo.paths)) {
+          changedRepos[repo.paths] = repo;
         }
       });
     });
