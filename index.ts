@@ -7,8 +7,8 @@ export interface ConfigConfig {
 }
 
 export interface ConfigRepo {
-  paths: string
-  repo: string
+  sourceDir: string
+  target: string
 }
 
 export class Config {
@@ -20,10 +20,9 @@ export class Config {
   };
 
   constructor() {
-    if (!fs.existsSync(this.configFile)) {
-      throw new Error(`Config file "${this.configFile}" does not exist.`);
+    if (fs.existsSync(this.configFile)) {
+      this.config = Object.assign(this.config, JSON.parse(fs.readFileSync(this.configFile, 'utf-8')));
     }
-    this.config = Object.assign(this.config, JSON.parse(fs.readFileSync(this.configFile, 'utf-8')));
   };
 
   getRepos() {
@@ -42,11 +41,11 @@ export class Config {
     return this.config.baseDir;
   }
 
-  getRepoByPath(path: string) {
+  getRepoByDir(path: string) {
     let repo = null;
     this.config.repos.forEach((config) => {
-      if (config.paths === path) {
-        repo = config.repo;
+      if (config.sourceDir === path) {
+        repo = config.target;
         return false;
       }
     });
@@ -62,8 +61,8 @@ export class Config {
     let changedRepos: Record<string, ConfigRepo> = {};
     changedFiles.forEach((file) => {
       this.getRepos().forEach((repo) => {
-        if (file.includes(repo.paths)) {
-          changedRepos[repo.paths] = repo;
+        if (file.includes(repo.sourceDir)) {
+          changedRepos[repo.sourceDir] = repo;
         }
       });
     });
