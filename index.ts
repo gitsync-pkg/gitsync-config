@@ -19,11 +19,20 @@ export class Config {
     repos: [],
   };
 
+  protected hasFile: boolean;
+
   constructor() {
-    if (fs.existsSync(this.configFile)) {
+    this.hasFile = fs.existsSync(this.configFile);
+    if (this.hasFile) {
       this.config = Object.assign(this.config, JSON.parse(fs.readFileSync(this.configFile, 'utf-8')));
     }
   };
+
+  checkFileExist() {
+    if (!this.hasFile) {
+      throw new Error('Config file ".gitsync.json" does not exist.');
+    }
+  }
 
   getRepos() {
     return this.config.repos;
