@@ -43,7 +43,7 @@ export class Config {
       return repo;
     }
 
-    return path.join(this.getBaseDir(), repo.replace(/:\/@/g, '-'));
+    return path.join(this.getBaseDir(), repo.replace(/[:@/\\]/g, '-'));
   }
 
   getBaseDir() {
