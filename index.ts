@@ -70,7 +70,7 @@ export class Config {
     let changedRepos: Record<string, ConfigRepo> = {};
     changedFiles.forEach((file) => {
       this.getRepos().forEach((repo) => {
-        if (file.includes(repo.sourceDir)) {
+        if (file.startsWith(repo.sourceDir)) {
           changedRepos[repo.sourceDir] = repo;
         }
       });
