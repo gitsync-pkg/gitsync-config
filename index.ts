@@ -66,22 +66,6 @@ export class Config {
     return found;
   }
 
-  getRepoByDir(path: string) {
-    let repo = null;
-    this.config.repos.forEach((config) => {
-      if (config.sourceDir === path) {
-        repo = config.target;
-        return false;
-      }
-    });
-
-    if (!repo) {
-      throw new Error(`Path "${path}" does not exist in config file.`)
-    }
-
-    return repo;
-  }
-
   getReposByFiles(changedFiles: string[]): ConfigRepo[] {
     let changedRepos: Record<string, ConfigRepo> = {};
     changedFiles.forEach((file) => {
