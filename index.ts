@@ -7,8 +7,10 @@ export interface ConfigConfig {
 }
 
 export interface ConfigRepo {
-  sourceDir: string
   target: string
+  sourceDir: string
+  targetDir?: string
+  [key: string]: unknown;
 }
 
 export class Config {
@@ -38,12 +40,12 @@ export class Config {
     return this.config.repos;
   }
 
-  getRepoDir(repo: string): string {
-    if (fs.existsSync(repo)) {
-      return repo;
+  getRepoDir(target: string): string {
+    if (fs.existsSync(target)) {
+      return target;
     }
 
-    return path.join(this.getBaseDir(), repo.replace(/[:@/\\]/g, '-'));
+    return path.join(this.getBaseDir(), target.replace(/[:@/\\]/g, '-'));
   }
 
   getBaseDir() {
