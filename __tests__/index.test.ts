@@ -136,6 +136,23 @@ describe('gitsync-config', () => {
     expect(fs.existsSync(path.join(repoDir, '.git'))).toBeTruthy();
   });
 
+  test('getRepoDirByRepo returns repoDir property when repoDir exists', async () => {
+    const target = await createRepo();
+
+    const repoDir = target.dir + 'repoDir';
+    await fs.promises.mkdir(repoDir);
+
+    const config = new Config;
+    const result = await config.getRepoDirByRepo({
+      sourceDir: '.',
+      target: target.dir,
+      repoDir: target.dir + 'repoDir'
+    }, true);
+
+    expect(result).toBe(repoDir);
+    expect(fs.existsSync(path.join(result, '.git'))).toBeTruthy();
+  });
+
   test('getRepoDirByRepo returns target repository', async () => {
     const target = await createRepo();
 

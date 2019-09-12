@@ -1,7 +1,7 @@
 import * as fs from 'fs';
-import * as path from 'path';
 import {promises as fsp} from "fs";
 import git from "git-cli-wrapper";
+import * as emptyDir from 'empty-dir';
 
 export interface ConfigConfig {
   baseDir: string
@@ -105,6 +105,10 @@ export class Config {
 
   private async cloneIfNew(url: string, dir: string) {
     if (!fs.existsSync(dir)) {
+      await fsp.mkdir(dir, {recursive: true});
+    }
+
+    if (await emptyDir(dir)) {
       await fsp.mkdir(dir, {recursive: true});
       await git(dir).run(['clone', url, '.']);
     }
