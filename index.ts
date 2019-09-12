@@ -1,5 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import {promises as fsp} from "fs";
+import git from "git-cli-wrapper";
 
 export interface ConfigConfig {
   baseDir: string
@@ -10,7 +12,9 @@ export interface ConfigRepo {
   target: string
   sourceDir: string
   targetDir?: string
-  [key: string]: unknown;
+  repoDir?: string
+
+  [key: string]: any;
 }
 
 export class Config {
@@ -38,14 +42,6 @@ export class Config {
 
   getRepos() {
     return this.config.repos;
-  }
-
-  getRepoDir(target: string): string {
-    if (fs.existsSync(target)) {
-      return target;
-    }
-
-    return path.join(this.getBaseDir(), target.replace(/[:@/\\]/g, '-'));
   }
 
   getBaseDir() {
@@ -78,5 +74,47 @@ export class Config {
       });
     });
     return Object.values(changedRepos);
+  }
+
+  /**
+   * @param repo
+   * @param clone
+   * @todo sourceDir is not required
+   */
+  async getRepoDirByRepo(repo: ConfigRepo, clone: boolean = false): Promise<string> {
+    if (repo.repoDir) {
+      clone && await this.cloneIfNew(repo.target, repo.repoDir);
+      return repo.repoDir;
+    }
+
+    // Load from existing directory
+    if (await this.isDir(repo.target)) {
+      const repoInstance = git(repo.target);
+      const result = await repoInstance.run(['rev-parse', '--is-bare-repository']);
+      if (result === 'false') {
+        return repo.target;
+      }
+    }
+
+    // Convert from bare repository or remote URL
+    const repoDir = this.getBaseDir() + '/' + repo.target.replace(/[:@/\\]/g, '-');
+    clone && await this.cloneIfNew(repo.target, repoDir);
+
+    return repoDir;
+  }
+
+  private async cloneIfNew(url: string, dir: string) {
+    if (!fs.existsSync(dir)) {
+      await fsp.mkdir(dir, {recursive: true});
+      await git(dir).run(['clone', url, '.']);
+    }
+  }
+
+  private async isDir(dir: string) {
+    try {
+      return (await fsp.stat(dir)).isDirectory();
+    } catch (e) {
+      return false;
+    }
   }
 }

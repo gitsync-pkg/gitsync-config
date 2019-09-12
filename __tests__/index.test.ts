@@ -1,7 +1,8 @@
 import * as fs from 'fs';
 import * as util from 'util';
+import * as path from 'path';
 import {Config} from '..';
-import {catchError, catchErrorSync} from '@gitsync/test';
+import {catchErrorSync, createRepo, removeRepos} from '@gitsync/test';
 
 async function writeGitSyncConfig(config: {}) {
   return await util.promisify(fs.writeFile)('.gitsync.json', JSON.stringify(config));
@@ -14,7 +15,11 @@ async function unlinkGitSyncConfig() {
 }
 
 afterEach(async () => {
-  await unlinkGitSyncConfig();
+  return await unlinkGitSyncConfig();
+});
+
+afterAll(async () => {
+  return await removeRepos();
 });
 
 describe('gitsync-config', () => {
@@ -44,16 +49,6 @@ describe('gitsync-config', () => {
     await writeGitSyncConfig({repos: repos});
     const config = new Config();
     expect(config.getRepos()).toEqual(repos);
-  });
-
-  test('getRepoDir', () => {
-    const config = new Config;
-
-    expect(config.getRepoDir('git@github.com:gitsync-pkg/gitsync-config.git'))
-      .toBe('.git/gitsync/git-github.com-gitsync-pkg-gitsync-config.git');
-
-    expect(config.getRepoDir('https://github.com/gitsync-pkg/gitsync-config.git'))
-      .toBe('.git/gitsync/https---github.com-gitsync-pkg-gitsync-config.git');
   });
 
   test('getBaseDir default', async () => {
@@ -113,5 +108,56 @@ describe('gitsync-config', () => {
     const config = new Config;
     const repos = config.getReposByFiles([]);
     expect(repos).toEqual([]);
+  });
+
+  test('getRepoDirByRepo returns target repository', async () => {
+    const target = await createRepo();
+
+    const config = new Config;
+    const repoDir = await config.getRepoDirByRepo({
+      sourceDir: '.',
+      target: target.dir,
+    }, true);
+
+    expect(repoDir).toBe(target.dir);
+  });
+
+  test('getRepoDirByRepo returns repoDir property', async () => {
+    const target = await createRepo();
+
+    const config = new Config;
+    const repoDir = await config.getRepoDirByRepo({
+      sourceDir: '.',
+      target: target.dir,
+      repoDir: target.dir + 'repoDir'
+    }, true);
+
+    expect(repoDir).toBe(target.dir + 'repoDir');
+    expect(fs.existsSync(path.join(repoDir, '.git'))).toBeTruthy();
+  });
+
+  test('getRepoDirByRepo returns target repository', async () => {
+    const target = await createRepo();
+
+    const config = new Config;
+    const repoDir = await config.getRepoDirByRepo({
+      sourceDir: '.',
+      target: target.dir,
+    }, true);
+
+    expect(repoDir).toBe(target.dir);
+  });
+
+  test('getRepoDirByRepo returns new directory', async () => {
+    const target = await createRepo(true);
+
+    const config = new Config;
+    const repoDir = await config.getRepoDirByRepo({
+      sourceDir: '.',
+      target: target.dir,
+    }, true);
+
+    expect(repoDir).toBe(path.join(config.getBaseDir(), target.dir.replace(/[:@/\\]/g, '-')));
+    expect(fs.existsSync(path.join(repoDir, '.git'))).toBeTruthy();
   });
 });

@@ -26,6 +26,9 @@
     "test": "jest",
     "prepare": "yarn build"
   },
+  "dependencies": {
+    "git-cli-wrapper": "^0.1.5"
+  },
   "devDependencies": {
     "@gitsync/test": "^0.1.4",
     "@types/jest": "^24.0.18",
