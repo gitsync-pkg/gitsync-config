@@ -17,6 +17,13 @@ export interface ConfigRepo {
   [key: string]: any;
 }
 
+export interface TargetDirConfig {
+  target: string
+  repoDir?: string
+
+  [key: string]: any;
+}
+
 export class Config {
   protected configFile = '.gitsync.json';
 
@@ -81,9 +88,8 @@ export class Config {
    *
    * @param repo
    * @param clone
-   * @todo sourceDir is not required
    */
-  async getRepoDirByRepo(repo: ConfigRepo, clone: boolean = false): Promise<string> {
+  async getRepoDirByRepo(repo: TargetDirConfig, clone: boolean = false): Promise<string> {
     if (repo.repoDir) {
       clone && await this.cloneIfNew(repo.target, repo.repoDir);
       return repo.repoDir;

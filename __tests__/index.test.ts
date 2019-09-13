@@ -115,7 +115,6 @@ describe('gitsync-config', () => {
 
     const config = new Config;
     const repoDir = await config.getRepoDirByRepo({
-      sourceDir: '.',
       target: target.dir,
     }, true);
 
@@ -127,7 +126,6 @@ describe('gitsync-config', () => {
 
     const config = new Config;
     const repoDir = await config.getRepoDirByRepo({
-      sourceDir: '.',
       target: target.dir,
       repoDir: target.dir + 'repoDir'
     }, true);
@@ -144,7 +142,6 @@ describe('gitsync-config', () => {
 
     const config = new Config;
     const result = await config.getRepoDirByRepo({
-      sourceDir: '.',
       target: target.dir,
       repoDir: target.dir + 'repoDir'
     }, true);
@@ -158,7 +155,6 @@ describe('gitsync-config', () => {
 
     const config = new Config;
     const repoDir = await config.getRepoDirByRepo({
-      sourceDir: '.',
       target: target.dir,
     }, true);
 
@@ -170,7 +166,6 @@ describe('gitsync-config', () => {
 
     const config = new Config;
     const repoDir = await config.getRepoDirByRepo({
-      sourceDir: '.',
       target: target.dir,
     }, true);
 
