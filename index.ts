@@ -77,6 +77,8 @@ export class Config {
   }
 
   /**
+   * Detect repository directory from config
+   *
    * @param repo
    * @param clone
    * @todo sourceDir is not required
