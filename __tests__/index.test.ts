@@ -2,7 +2,8 @@ import * as fs from 'fs';
 import * as util from 'util';
 import * as path from 'path';
 import {Config} from '..';
-import {catchErrorSync, createRepo, removeRepos} from '@gitsync/test';
+import {catchError, catchErrorSync, createRepo, removeRepos} from '@gitsync/test';
+import git from "git-cli-wrapper";
 
 async function writeGitSyncConfig(config: {}) {
   return await util.promisify(fs.writeFile)('.gitsync.json', JSON.stringify(config));
@@ -169,7 +170,54 @@ describe('gitsync-config', () => {
       target: target.dir,
     }, true);
 
-    expect(repoDir).toBe(path.join(config.getBaseDir(), target.dir.replace(/[:@/\\]/g, '-')));
+    expect(repoDir).toBe(path.join(config.getBaseDir(), path.basename(target.dir)));
     expect(fs.existsSync(path.join(repoDir, '.git'))).toBeTruthy();
+  });
+
+  test('getRepoDirByRepo target directory remote URL not matched', async () => {
+    const targetBare = await createRepo(true);
+
+    const config = new Config;
+    config.setBaseDir('data/gitsync');
+
+    const repoDir = await config.getRepoDirByRepo({
+      target: targetBare.dir,
+    }, true);
+
+    const target = git(repoDir);
+    await target.run(['remote', 'set-url', 'origin', 'https://github.com/user/repo.git']);
+
+    const error = await catchError(async () => {
+      return await config.getRepoDirByRepo({
+        target: targetBare.dir,
+      }, true);
+    });
+
+    expect(error).toEqual(new Error(`Expected repository remote URL of directory "${repoDir}" is "${targetBare.dir}"`
+      + `, but got "https://github.com/user/repo.git", please specified \`repoDir\` or delete directory "${repoDir}"`));
+  });
+
+  test('getRepoDirByRepo repoDir not match target url', async () => {
+    const targetBare = await createRepo(true);
+
+    const config = new Config;
+    config.setBaseDir('data/gitsync');
+
+    const repoDir = await config.getRepoDirByRepo({
+      target: targetBare.dir,
+    }, true);
+
+    const target = git(repoDir);
+    await target.run(['remote', 'set-url', 'origin', 'https://github.com/user/repo.git']);
+
+    const error = await catchError(async () => {
+      return await config.getRepoDirByRepo({
+        repoDir: repoDir,
+        target: targetBare.dir,
+      }, true);
+    });
+
+    expect(error).toEqual(new Error(`Expected repository remote URL of directory "${repoDir}" is "${targetBare.dir}"`
+      + `, but got "https://github.com/user/repo.git", please specified another \`repoDir\` or delete directory "${repoDir}"`));
   });
 });

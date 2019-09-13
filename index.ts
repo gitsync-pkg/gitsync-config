@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import * as path from 'path';
 import {promises as fsp} from "fs";
 import git from "git-cli-wrapper";
 import * as emptyDir from 'empty-dir';
@@ -55,6 +56,11 @@ export class Config {
     return this.config.baseDir;
   }
 
+  setBaseDir(baseDir: string) {
+    this.config.baseDir = baseDir;
+    return this;
+  }
+
   getRepoBySourceDir(sourceDir: string) {
     let found = null;
     this.config.repos.forEach((repo) => {
@@ -91,6 +97,7 @@ export class Config {
    */
   async getRepoDirByRepo(repo: TargetDirConfig, clone: boolean = false): Promise<string> {
     if (repo.repoDir) {
+      await this.checkRepoDirUrl(repo.repoDir, repo.target, true);
       clone && await this.cloneIfNew(repo.target, repo.repoDir);
       return repo.repoDir;
     }
@@ -105,10 +112,32 @@ export class Config {
     }
 
     // Convert from bare repository or remote URL
-    const repoDir = this.getBaseDir() + '/' + repo.target.replace(/[:@/\\]/g, '-');
+    const repoName = this.getRepoName(repo.target);
+    const repoDir = path.join(this.getBaseDir(), repoName);
+    await this.checkRepoDirUrl(repoDir, repo.target);
     clone && await this.cloneIfNew(repo.target, repoDir);
 
     return repoDir;
+  }
+
+  private async checkRepoDirUrl(repoDir: string, url: string, hasRepoDir: boolean = false) {
+    if (await this.isDir(repoDir) && !await emptyDir(repoDir)) {
+      const repoInstance = git(repoDir);
+      const configUrl = await repoInstance.run(['config', '--get', 'remote.origin.url']);
+      if (configUrl !== url) {
+        throw new Error(`Expected repository remote URL of directory "${repoDir}" is "${url}"`
+          + `, but got "${configUrl}", `
+          + `please specified ${hasRepoDir ? 'another ' : ''}\`repoDir\` or delete directory "${repoDir}"`);
+      }
+    }
+  }
+
+  private getRepoName(url: string) {
+    let name = url.substr(url.lastIndexOf('/') + 1);
+    if (name.endsWith('.git')) {
+      name = name.substr(0, name.length - 4);
+    }
+    return name;
   }
 
   private async cloneIfNew(url: string, dir: string) {

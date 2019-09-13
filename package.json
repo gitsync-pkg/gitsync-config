@@ -42,6 +42,7 @@
     "typescript": "^3.5.3"
   },
   "ciDependencies": {
-    "@gitsync/test": "gitsync-pkg/gitsync-test#master"
+    "@gitsync/test": "gitsync-pkg/gitsync-test#master",
+    "git-cli-wrapper": "twinh/git-cli-wrapper#master"
   }
 }
