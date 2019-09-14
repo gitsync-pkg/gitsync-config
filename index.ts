@@ -80,11 +80,15 @@ export class Config {
   }
 
   filterReposBySourceDir(include: string[], exclude: string[] = []) {
+    if (!include.length && !exclude.length) {
+      return this.config.repos;
+    }
+
     const patterns = this.createPatterns(include, exclude);
 
     // @ts-ignore patterns: string[]
     const repos = this.config.repos.filter(repo => micromatch.isMatch(repo.sourceDir, patterns));
-    if (repos.length === 0) {
+    if (!repos.length) {
       log.warn(`No directories found after filtering "${patterns}"`);
     }
     return repos;
