@@ -3,6 +3,8 @@ import * as path from 'path';
 import {promises as fsp} from "fs";
 import git from "git-cli-wrapper";
 import * as emptyDir from 'empty-dir';
+import * as micromatch from 'micromatch';
+import log from "@gitsync/log";
 
 export interface ConfigConfig {
   baseDir: string
@@ -75,6 +77,17 @@ export class Config {
     }
 
     return found;
+  }
+
+  filterReposBySourceDir(include: string[], exclude: string[] = []) {
+    const patterns = this.createPatterns(include, exclude);
+
+    // @ts-ignore patterns: string[]
+    const repos = this.config.repos.filter(repo => micromatch.isMatch(repo.sourceDir, patterns));
+    if (repos.length === 0) {
+      log.warn(`No directories found after filtering "${patterns}"`);
+    }
+    return repos;
   }
 
   getReposByFiles(changedFiles: string[]): ConfigRepo[] {
@@ -157,5 +170,9 @@ export class Config {
     } catch (e) {
       return false;
     }
+  }
+
+  private createPatterns(include: string[], exclude: string[]): string[] {
+    return include.concat(exclude.map(item => '!' + item));
   }
 }

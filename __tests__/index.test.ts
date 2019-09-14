@@ -87,6 +87,25 @@ describe('gitsync-config', () => {
     expect(error).toEqual(new Error('Source directory "test" does not exist in config file.'));
   });
 
+  test('filterReposBySourceDir', async () => {
+    const repos = [
+      {
+        sourceDir: 'packages/1',
+        target: '../packages-1'
+      },
+      {
+        sourceDir: 'packages/2',
+        target: '../packages-2'
+      }
+    ];
+    await writeGitSyncConfig({repos: repos});
+    const config = new Config();
+
+    expect(config.filterReposBySourceDir(['packages/1'])).toEqual([repos[0]]);
+    expect(config.filterReposBySourceDir(['packages/*'])).toEqual(repos);
+    expect(config.filterReposBySourceDir([], ['packages/2'])).toEqual([repos[0]]);
+  });
+
   test('getReposByFiles exists', async () => {
     const repos = [
       {
