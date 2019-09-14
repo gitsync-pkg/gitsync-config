@@ -31,7 +31,8 @@
     "empty-dir": "^2.0.0",
     "@types/empty-dir": "^2.0.0",
     "micromatch": "^4.0.2",
-    "@types/micromatch": "^3.1.0"
+    "@types/micromatch": "^3.1.0",
+    "@gitsync/log": "^0.1.4"
   },
   "devDependencies": {
     "@gitsync/test": "^0.1.4",
@@ -44,6 +45,7 @@
     "typescript": "^3.5.3"
   },
   "ciDependencies": {
+    "@gitsync/log": "gitsync-pkg/gitsync-log#master",
     "@gitsync/test": "gitsync-pkg/gitsync-test#master",
     "git-cli-wrapper": "twinh/git-cli-wrapper#master"
   }
