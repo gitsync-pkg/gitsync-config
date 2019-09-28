@@ -2,8 +2,10 @@ import * as fs from 'fs';
 import * as util from 'util';
 import * as path from 'path';
 import {Config} from '..';
-import {catchError, catchErrorSync, createRepo, removeRepos} from '@gitsync/test';
+import {catchError, catchErrorSync, RepoManager} from '@gitsync/test';
 import git from "git-cli-wrapper";
+
+const {createRepo, removeRepos} = new RepoManager();
 
 async function writeGitSyncConfig(config: {}) {
   return await util.promisify(fs.writeFile)('.gitsync.json', JSON.stringify(config));
@@ -19,11 +21,11 @@ afterEach(async () => {
   return await unlinkGitSyncConfig();
 });
 
-afterAll(async () => {
-  return await removeRepos();
-});
-
 describe('gitsync-config', () => {
+  afterAll(async () => {
+    await removeRepos();
+  });
+
   test('checkFileExist exists', async () => {
     await writeGitSyncConfig({});
     const config = new Config;
