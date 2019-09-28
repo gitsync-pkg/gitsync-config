@@ -2,11 +2,9 @@ import * as fs from 'fs';
 import * as util from 'util';
 import * as path from 'path';
 import {Config} from '..';
-import {catchError, catchErrorSync, RepoManager} from '@gitsync/test';
+import {catchError, catchErrorSync, createRepo} from '@gitsync/test';
 import git from "git-cli-wrapper";
-
-const repoManager = new RepoManager();
-const {createRepo, removeRepos} = repoManager;
+import * as tmp from 'tmp-promise'
 
 async function writeGitSyncConfig(config: {}) {
   return await util.promisify(fs.writeFile)('.gitsync.json', JSON.stringify(config));
@@ -23,10 +21,6 @@ afterEach(async () => {
 });
 
 describe('gitsync-config', () => {
-  afterAll(async () => {
-    await removeRepos();
-  });
-
   test('checkFileExist exists', async () => {
     await writeGitSyncConfig({});
     const config = new Config;
@@ -188,7 +182,7 @@ describe('gitsync-config', () => {
     const target = await createRepo(true);
 
     const config = new Config;
-    config.setBaseDir(path.join(repoManager.baseDir, 'gitsync'));
+    config.setBaseDir((await tmp.dir()).path);
 
     const repoDir = await config.getRepoDirByRepo({
       target: target.dir,
@@ -202,7 +196,7 @@ describe('gitsync-config', () => {
     const targetBare = await createRepo(true);
 
     const config = new Config;
-    config.setBaseDir(path.join(repoManager.baseDir, 'gitsync'));
+    config.setBaseDir((await tmp.dir()).path);
 
     const repoDir = await config.getRepoDirByRepo({
       target: targetBare.dir,
@@ -225,7 +219,7 @@ describe('gitsync-config', () => {
     const targetBare = await createRepo(true);
 
     const config = new Config;
-    config.setBaseDir(path.join(repoManager.baseDir, 'gitsync'));
+    config.setBaseDir((await tmp.dir()).path);
 
     const repoDir = await config.getRepoDirByRepo({
       target: targetBare.dir,
