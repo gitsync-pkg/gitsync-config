@@ -5,7 +5,8 @@ import {Config} from '..';
 import {catchError, catchErrorSync, RepoManager} from '@gitsync/test';
 import git from "git-cli-wrapper";
 
-const {createRepo, removeRepos} = new RepoManager();
+const repoManager = new RepoManager();
+const {createRepo, removeRepos} = repoManager;
 
 async function writeGitSyncConfig(config: {}) {
   return await util.promisify(fs.writeFile)('.gitsync.json', JSON.stringify(config));
@@ -187,6 +188,8 @@ describe('gitsync-config', () => {
     const target = await createRepo(true);
 
     const config = new Config;
+    config.setBaseDir(path.join(repoManager.baseDir, 'gitsync'));
+
     const repoDir = await config.getRepoDirByRepo({
       target: target.dir,
     }, true);
@@ -199,7 +202,7 @@ describe('gitsync-config', () => {
     const targetBare = await createRepo(true);
 
     const config = new Config;
-    config.setBaseDir('data/gitsync');
+    config.setBaseDir(path.join(repoManager.baseDir, 'gitsync'));
 
     const repoDir = await config.getRepoDirByRepo({
       target: targetBare.dir,
@@ -222,7 +225,7 @@ describe('gitsync-config', () => {
     const targetBare = await createRepo(true);
 
     const config = new Config;
-    config.setBaseDir('data/gitsync');
+    config.setBaseDir(path.join(repoManager.baseDir, 'gitsync'));
 
     const repoDir = await config.getRepoDirByRepo({
       target: targetBare.dir,
