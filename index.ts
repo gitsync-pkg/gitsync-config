@@ -16,6 +16,8 @@ export interface ConfigRepo {
   sourceDir: string
   targetDir?: string
   repoDir?: string
+  addTagPrefix?: string
+  removeTagPrefix?: string
 
   [key: string]: any;
 }
