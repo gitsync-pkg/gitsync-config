@@ -18,6 +18,7 @@ export interface ConfigRepo {
   repoDir?: string
   addTagPrefix?: string
   removeTagPrefix?: string
+  squash?: boolean
 
   [key: string]: any;
 }
