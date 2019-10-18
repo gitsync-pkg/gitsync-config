@@ -20,6 +20,8 @@ export interface ConfigRepo {
   removeTagPrefix?: string
   squash?: boolean
 
+  realSourceDir: string
+
   [key: string]: any;
 }
 
@@ -44,6 +46,9 @@ export class Config {
     this.hasFile = fs.existsSync(this.configFile);
     if (this.hasFile) {
       this.config = Object.assign(this.config, JSON.parse(fs.readFileSync(this.configFile, 'utf-8')));
+      this.config.repos.forEach((repo) => {
+        repo.realSourceDir = this.getRealSourceDir(repo.sourceDir);
+      });
     }
   };
 
@@ -101,7 +106,7 @@ export class Config {
     let changedRepos: Record<string, ConfigRepo> = {};
     changedFiles.forEach((file) => {
       this.getRepos().forEach((repo) => {
-        if (file.startsWith(repo.sourceDir)) {
+        if (file.startsWith(repo.realSourceDir)) {
           changedRepos[repo.sourceDir] = repo;
         }
       });
@@ -181,5 +186,9 @@ export class Config {
 
   private createPatterns(include: string[], exclude: string[]): string[] {
     return include.concat(exclude.map(item => '!' + item));
+  }
+
+  private getRealSourceDir(dir: string) {
+    return dir.replace(/\\#/g, '//').split('#')[0].replace(/\\\\/g, '#');
   }
 }
