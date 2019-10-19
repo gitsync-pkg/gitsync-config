@@ -47,7 +47,7 @@ export class Config {
     if (this.hasFile) {
       this.config = Object.assign(this.config, JSON.parse(fs.readFileSync(this.configFile, 'utf-8')));
       this.config.repos.forEach((repo) => {
-        repo.realSourceDir = this.getRealSourceDir(repo.sourceDir);
+        Object.assign(repo, this.parseSourceDir(repo.sourceDir));
       });
     }
   };
@@ -129,6 +129,13 @@ export class Config {
     return repoDir;
   }
 
+  parseSourceDir(dir: string) {
+    return {
+      sourceDir: dir.replace(/##/g, '#'),
+      realSourceDir: dir.replace(/##/g, '//').split('#')[0].replace(/\/\//g, '#'),
+    }
+  }
+
   private async checkRepoDirUrl(repoDir: string, url: string, hasRepoDir: boolean = false) {
     if (await this.isDir(repoDir) && !await emptyDir(repoDir)) {
       const repoInstance = git(repoDir);
@@ -170,9 +177,5 @@ export class Config {
 
   private createPatterns(include: string[], exclude: string[]): string[] {
     return include.concat(exclude.map(item => '!' + item));
-  }
-
-  private getRealSourceDir(dir: string) {
-    return dir.replace(/\\#/g, '//').split('#')[0].replace(/\/\//g, '#');
   }
 }

@@ -114,7 +114,7 @@ describe('gitsync-config', () => {
     const repos = [
       {
         sourceDir: 'packages/1#squash',
-        target: '../packages-1'
+        target: 'packages-1'
       }
     ];
     await writeGitSyncConfig({repos: repos});
@@ -122,55 +122,71 @@ describe('gitsync-config', () => {
     expect(config.getRepos()[0]).toEqual({
       sourceDir: 'packages/1#squash',
       realSourceDir: 'packages/1',
-      target: '../packages-1'
+      target: 'packages-1'
     });
   });
 
-  test('getReposByFiles sourceDir contains custom name contains hash sign', async () => {
+  test('getReposByFiles sourceDir contains #', async () => {
     const repos = [
       {
         sourceDir: 'packages/1##squash',
-        target: '../packages-1'
+        target: 'packages-1'
       }
     ];
     await writeGitSyncConfig({repos: repos});
     const config = new Config();
     expect(config.getRepos()[0]).toEqual({
-      sourceDir: 'packages/1##squash',
-      realSourceDir: 'packages/1',
-      target: '../packages-1'
+      sourceDir: 'packages/1#squash',
+      realSourceDir: 'packages/1#squash',
+      target: 'packages-1'
     });
   });
 
-  test('getReposByFiles sourceDir contains hash sign as dir name', async () => {
+  test('getReposByFiles sourceDir contains # and custom name', async () => {
     const repos = [
       {
-        sourceDir: 'packages\\#/1',
-        target: '../packages-1'
+        sourceDir: 'packages##/1#custom-name',
+        target: 'packages-1'
       }
     ];
     await writeGitSyncConfig({repos: repos});
     const config = new Config();
     expect(config.getRepos()[0]).toEqual({
-      sourceDir: 'packages\\#/1',
+      sourceDir: 'packages#/1#custom-name',
       realSourceDir: 'packages#/1',
-      target: '../packages-1'
+      target: 'packages-1'
     });
   });
 
-  test('getReposByFiles sourceDir contains hash sign as dir name and custom name', async () => {
+  test('getReposByFiles sourceDir contains # and custom name', async () => {
     const repos = [
       {
-        sourceDir: 'packages\\#/1#custom-name',
-        target: '../packages-1'
+        sourceDir: 'packages##/1#custom-name',
+        target: 'packages-1'
       }
     ];
     await writeGitSyncConfig({repos: repos});
     const config = new Config();
     expect(config.getRepos()[0]).toEqual({
-      sourceDir: 'packages\\#/1#custom-name',
+      sourceDir: 'packages#/1#custom-name',
       realSourceDir: 'packages#/1',
-      target: '../packages-1'
+      target: 'packages-1'
+    });
+  });
+
+  test('getReposByFiles sourceDir mix # and custom name', async () => {
+    const repos = [
+      {
+        sourceDir: 'packages###custom-name',
+        target: 'packages-1'
+      }
+    ];
+    await writeGitSyncConfig({repos: repos});
+    const config = new Config();
+    expect(config.getRepos()[0]).toEqual({
+      sourceDir: 'packages##custom-name',
+      realSourceDir: 'packages#',
+      target: 'packages-1'
     });
   });
 
