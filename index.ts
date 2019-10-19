@@ -71,22 +71,6 @@ export class Config {
     return this;
   }
 
-  getRepoBySourceDir(sourceDir: string) {
-    let found = null;
-    this.config.repos.forEach((repo) => {
-      if (repo.sourceDir === sourceDir) {
-        found = repo;
-        return false;
-      }
-    });
-
-    if (!found) {
-      throw new Error(`Source directory "${sourceDir}" does not exist in config file.`)
-    }
-
-    return found;
-  }
-
   filterReposBySourceDir(include: string[], exclude: string[] = []) {
     if (!include.length && !exclude.length) {
       return this.config.repos;

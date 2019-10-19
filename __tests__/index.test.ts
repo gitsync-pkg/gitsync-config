@@ -60,30 +60,6 @@ describe('gitsync-config', () => {
     expect(config.getBaseDir()).toBe('gitsync');
   });
 
-  test('getRepoBySourceDir exists', async () => {
-    const repos = [
-      {
-        sourceDir: 'packages/1',
-        target: '../packages-1'
-      },
-      {
-        sourceDir: 'packages/2',
-        target: '../packages-2'
-      }
-    ];
-    await writeGitSyncConfig({repos: repos});
-    const config = new Config();
-    expect(config.getRepoBySourceDir('packages/2')).toEqual(repos[1]);
-  });
-
-  test('getRepoBySourceDir not exists', async () => {
-    const config = new Config;
-    const error = catchErrorSync(() => {
-      config.getRepoBySourceDir('test')
-    });
-    expect(error).toEqual(new Error('Source directory "test" does not exist in config file.'));
-  });
-
   test('filterReposBySourceDir', async () => {
     const repos = [
       {
