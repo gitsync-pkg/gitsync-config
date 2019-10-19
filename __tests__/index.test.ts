@@ -110,6 +110,70 @@ describe('gitsync-config', () => {
     expect(repos).toEqual([]);
   });
 
+  test('getReposByFiles sourceDir contains custom name', async () => {
+    const repos = [
+      {
+        sourceDir: 'packages/1#squash',
+        target: '../packages-1'
+      }
+    ];
+    await writeGitSyncConfig({repos: repos});
+    const config = new Config();
+    expect(config.getRepos()[0]).toEqual({
+      sourceDir: 'packages/1#squash',
+      realSourceDir: 'packages/1',
+      target: '../packages-1'
+    });
+  });
+
+  test('getReposByFiles sourceDir contains custom name contains hash sign', async () => {
+    const repos = [
+      {
+        sourceDir: 'packages/1##squash',
+        target: '../packages-1'
+      }
+    ];
+    await writeGitSyncConfig({repos: repos});
+    const config = new Config();
+    expect(config.getRepos()[0]).toEqual({
+      sourceDir: 'packages/1##squash',
+      realSourceDir: 'packages/1',
+      target: '../packages-1'
+    });
+  });
+
+  test('getReposByFiles sourceDir contains hash sign as dir name', async () => {
+    const repos = [
+      {
+        sourceDir: 'packages\\#/1',
+        target: '../packages-1'
+      }
+    ];
+    await writeGitSyncConfig({repos: repos});
+    const config = new Config();
+    expect(config.getRepos()[0]).toEqual({
+      sourceDir: 'packages\\#/1',
+      realSourceDir: 'packages#/1',
+      target: '../packages-1'
+    });
+  });
+
+  test('getReposByFiles sourceDir contains hash sign as dir name and custom name', async () => {
+    const repos = [
+      {
+        sourceDir: 'packages\\#/1#custom-name',
+        target: '../packages-1'
+      }
+    ];
+    await writeGitSyncConfig({repos: repos});
+    const config = new Config();
+    expect(config.getRepos()[0]).toEqual({
+      sourceDir: 'packages\\#/1#custom-name',
+      realSourceDir: 'packages#/1',
+      target: '../packages-1'
+    });
+  });
+
   test('getRepoDirByRepo returns target repository', async () => {
     const target = await createRepo();
 

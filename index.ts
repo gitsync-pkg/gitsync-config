@@ -173,6 +173,6 @@ export class Config {
   }
 
   private getRealSourceDir(dir: string) {
-    return dir.replace(/\\#/g, '//').split('#')[0].replace(/\\\\/g, '#');
+    return dir.replace(/\\#/g, '//').split('#')[0].replace(/\/\//g, '#');
   }
 }
