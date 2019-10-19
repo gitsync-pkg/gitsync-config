@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as util from 'util';
 import * as path from 'path';
-import {Config} from '..';
+import {Config, ConfigRepo} from '..';
 import {catchError, catchErrorSync, createRepo} from '@gitsync/test';
 import git from "git-cli-wrapper";
 import * as tmp from 'tmp-promise'
@@ -14,6 +14,13 @@ async function unlinkGitSyncConfig() {
   if (await fs.existsSync('.gitsync.json')) {
     return await util.promisify(fs.unlink)('.gitsync.json');
   }
+}
+
+function withRealSourceDir(repos: ConfigRepo[]) {
+  for (let repo of repos) {
+    repo.realSourceDir = repo.sourceDir;
+  }
+  return repos;
 }
 
 afterEach(async () => {
@@ -46,7 +53,7 @@ describe('gitsync-config', () => {
     ];
     await writeGitSyncConfig({repos: repos});
     const config = new Config();
-    expect(config.getRepos()).toEqual(repos);
+    expect(config.getRepos()).toEqual(withRealSourceDir(repos));
   });
 
   test('getBaseDir default', async () => {
@@ -74,8 +81,8 @@ describe('gitsync-config', () => {
     await writeGitSyncConfig({repos: repos});
     const config = new Config();
 
-    expect(config.filterReposBySourceDir(['packages/1'])).toEqual([repos[0]]);
-    expect(config.filterReposBySourceDir(['packages/*'])).toEqual(repos);
+    expect(config.filterReposBySourceDir(['packages/1'])).toEqual(withRealSourceDir([repos[0]]));
+    expect(config.filterReposBySourceDir(['packages/*'])).toEqual(withRealSourceDir(repos));
     expect(config.filterReposBySourceDir([], ['packages/2'])).toEqual([repos[0]]);
   });
 
@@ -94,7 +101,7 @@ describe('gitsync-config', () => {
     const config = new Config();
     expect(config.getReposByFiles([
       'packages/1/test.txt'
-    ])).toEqual([repos[0]]);
+    ])).toEqual(withRealSourceDir([repos[0]]));
   });
 
   test('getReposByFiles not exists', async () => {

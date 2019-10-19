@@ -20,7 +20,7 @@ export interface ConfigRepo {
   removeTagPrefix?: string
   squash?: boolean
 
-  realSourceDir: string
+  realSourceDir?: string
 
   [key: string]: any;
 }
