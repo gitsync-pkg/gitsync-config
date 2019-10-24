@@ -130,6 +130,7 @@ export class Config {
   }
 
   parseSourceDir(dir: string) {
+    dir = path.normalize(dir);
     return {
       sourceDir: dir.replace(/##/g, '#'),
       realSourceDir: dir.replace(/##/g, '//').split('#')[0].replace(/\/\//g, '#'),
