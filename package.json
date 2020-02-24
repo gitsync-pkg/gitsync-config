@@ -1,6 +1,6 @@
 {
   "name": "@gitsync/config",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Manage .gitsync.json config",
   "keywords": [
     "gitsync",
@@ -31,11 +31,11 @@
     "@types/empty-dir": "^2.0.0",
     "@types/micromatch": "^3.1.0",
     "empty-dir": "^2.0.0",
-    "git-cli-wrapper": "^0.3.1",
+    "git-cli-wrapper": "^0.3.2",
     "micromatch": "^4.0.2"
   },
   "devDependencies": {
-    "@gitsync/test": "^0.4.0",
+    "@gitsync/test": "^0.5.0",
     "@types/jest": "^24.0.18",
     "@types/rimraf": "^2.0.2",
     "coveralls": "^3.0.6",
