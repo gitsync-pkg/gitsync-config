@@ -9,7 +9,10 @@ import log from "@gitsync/log";
 export interface ConfigConfig {
   baseDir: string
   repos: ConfigRepo[]
+  plugins: ConfigPlugin[],
 }
+
+export type ConfigPlugin = string | [string, { [key: string]: any; }];
 
 export interface ConfigRepo {
   target: string
@@ -38,6 +41,7 @@ export class Config {
   protected config: ConfigConfig = {
     baseDir: '.git/gitsync',
     repos: [],
+    plugins: [],
   };
 
   protected hasFile: boolean;
@@ -69,6 +73,14 @@ export class Config {
   setBaseDir(baseDir: string) {
     this.config.baseDir = baseDir;
     return this;
+  }
+
+  getPlugins() {
+    return this.config.plugins;
+  }
+
+  getRepoPlugins(plugins: ConfigPlugin[]) {
+    return plugins || this.getPlugins() || [];
   }
 
   filterReposBySourceDir(include: string[], exclude: string[] = []) {
