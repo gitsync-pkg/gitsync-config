@@ -35,6 +35,10 @@ export interface TargetDirConfig {
   [key: string]: any;
 }
 
+export const config = {
+  baseDir: ''
+}
+
 export class Config {
   protected configFile = '.gitsync.json';
 
@@ -67,7 +71,7 @@ export class Config {
   }
 
   getBaseDir() {
-    return this.config.baseDir;
+    return config.baseDir || this.config.baseDir;
   }
 
   setBaseDir(baseDir: string) {

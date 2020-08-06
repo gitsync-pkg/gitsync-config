@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as util from 'util';
 import * as path from 'path';
-import {Config, ConfigRepo} from '..';
+import {Config, ConfigRepo, config as defaultConfig} from '..';
 import {catchError, catchErrorSync, createRepo} from '@gitsync/test';
 import git from "git-cli-wrapper";
 import * as tmp from 'tmp-promise'
@@ -300,5 +300,15 @@ describe('gitsync-config', () => {
 
     expect(error).toEqual(new Error(`Expected repository remote URL of directory "${repoDir}" is "${targetBare.dir}"`
       + `, but got "https://github.com/user/repo.git", please specified another \`repoDir\` or delete directory "${repoDir}"`));
+  });
+
+  test('set baseDir from config', async () => {
+    expect(defaultConfig.baseDir).toBe('');
+
+    defaultConfig.baseDir = 'abc';
+    const config = new Config();
+    expect(config.getBaseDir()).toBe('abc');
+
+    defaultConfig.baseDir = '';
   });
 });
