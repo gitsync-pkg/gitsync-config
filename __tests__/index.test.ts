@@ -311,4 +311,31 @@ describe('gitsync-config', () => {
 
     defaultConfig.baseDir = '';
   });
+
+  test('get developBranches from root config', async () => {
+    await writeGitSyncConfig({
+      developBranches: ['develop'],
+      repos: [
+        {
+          sourceDir: 'packages/1',
+          target: '../packages-1'
+        }
+      ]});
+    const config = new Config();
+    expect(config.getRepos()[0].developBranches).toEqual(['develop']);
+  });
+
+  test('get developBranches from repo config', async () => {
+    await writeGitSyncConfig({
+      developBranches: ['develop'],
+      repos: [
+        {
+          sourceDir: 'packages/1',
+          target: '../packages-1',
+          developBranches: ['develop/*']
+        }
+      ]});
+    const config = new Config();
+    expect(config.getRepos()[0].developBranches).toEqual(['develop/*']);
+  });
 });

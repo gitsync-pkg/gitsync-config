@@ -10,6 +10,7 @@ export interface ConfigConfig {
   baseDir: string
   repos: ConfigRepo[]
   plugins: ConfigPlugin[],
+  developBranches?: string[],
 }
 
 export type ConfigPlugin = string | [string, { [key: string]: any; }];
@@ -22,6 +23,7 @@ export interface ConfigRepo {
   addTagPrefix?: string
   removeTagPrefix?: string
   squash?: boolean
+  developBranches?: string[]
 
   realSourceDir?: string
 
@@ -56,6 +58,10 @@ export class Config {
       this.config = Object.assign(this.config, JSON.parse(fs.readFileSync(this.configFile, 'utf-8')));
       this.config.repos.forEach((repo) => {
         Object.assign(repo, this.parseSourceDir(repo.sourceDir));
+
+        if (this.config.developBranches && (!repo.developBranches || repo.developBranches.length === 0)) {
+          repo.developBranches = this.config.developBranches;
+        }
       });
     }
   };
